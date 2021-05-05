@@ -1,0 +1,105 @@
+<input #toggleNameInputField type="text">
+<button (click)="addToggle(toggleNameInputField.value)">add toggle</button>
+
+<div class="container">
+  <H1>Awesome Feature Toggles POC</H1>
+  <div class="card" *ngFor="let toggle of toggles; let i = index">
+    <div class="card-header" id="header{{toggle.id}}">
+        <span class="badge badge-secondary">{{toggle.id}}</span> has current value
+        <span
+          [ngClass]="(toggle.active)?'badge badge-success':'badge badge-danger'">{{toggle.active}}</span>
+        -
+        <button type="button" class="btn btn-primary" (click)="flipToggle(toggle.id)">Toggle it!
+        </button>
+        <button type="button" class="btn btn-danger float-right" (click)="deleteToggle(toggle.id)">Delete
+        </button>
+    </div>
+    <div class="collapse show" id="thing">
+      <div class="card-body" style="background-color: darkgray">
+        <ul>
+          <li><strong>{{toggle.allowPercentage}}%</strong> of customers will see the current default value:
+            <span
+              [ngClass]="(toggle.active)?'badge badge-success':'badge badge-danger'">{{toggle.active}}</span>, the rest will see
+            <span
+              [ngClass]="(!toggle.active)?'badge badge-success':'badge badge-danger'">{{!toggle.active}}</span> -
+            <input #togglePercentageInputField type="number" min="1" max="100" step="1">
+            <button type="button" class="btn btn-dark btn-sm" (click)="setTogglePercentage(toggle.id, togglePercentageInputField.valueAsNumber)">Set percentage</button>
+          </li>
+          <li>Requested by the client {{toggle.numberOfTimesRequested}} times</li>
+          <li>The last time it was requested was: {{toggle.lastRequested}}</li>
+          <li>Creation date: {{toggle.creationDate}}</li>
+          <li [ngClass]="toggle.plannedSwitchDate==null?'collapse show':'collapse'">This toggle has
+            no plans to change its value.
+            <button class="btn btn-dark btn-sm" type="button" data-toggle="collapse"
+                    [attr.data-target]="'#collapseDatePicker' + i" aria-expanded="false"
+                    aria-controls="collapseDatePicker" (click)="selectedDate = null">
+              Plan this toggle
+            </button>
+          </li>
+          <li [ngClass]="toggle.plannedSwitchDate==null?'collapse':'collapse show'">This toggle will
+            switch to
+            <span [ngClass]="(toggle.plannedSwitchValue)?'badge badge-success':'badge badge-danger'">{{toggle.plannedSwitchValue}}</span> on: {{toggle.plannedSwitchDate}}.
+<!--                        <countdown [ngClass]="selectedDate?'collapse show':'collapse'" [config]="{leftTime: this.countDown}"></countdown>-->
+            <button class="btn btn-dark btn-sm" type="button" data-toggle="collapse"
+                    [attr.data-target]="'#collapseDatePicker' + i" aria-expanded="false"
+                    aria-controls="collapseDatePicker" (click)="selectedDate = null">
+              Plan this toggle
+            </button>
+          </li>
+          <div class="collapse" id="{{'collapseDatePicker' + i}}" >
+            <div class="card card-body">
+              <dl-date-time-picker
+                [ngClass]="selectedDate?'collapse':'collapse show'"
+                startView="day"
+                maxView="year"
+                minview="minute"
+                minuteStep="5"
+                [(ngModel)]="selectedDate"
+              >
+              </dl-date-time-picker>
+              <br>
+              <p [ngClass]="selectedDate?'collapse show':'collapse'">
+                On {{selectedDate}} the value will be set to:
+                <button class="btn btn-dark btn-sm" type="button" data-toggle="collapse"
+                        data-target="#collapseDatePicker" aria-expanded="false"
+                        aria-controls="collapseDatePicker"
+                        (click)="planSwitch(toggle.id, true, selectedDate)">
+                  <span class="badge badge-success">True</span>
+                </button>
+                ---
+                <button class="btn btn-dark btn-sm" type="button" data-toggle="collapse"
+                        data-target="#collapseDatePicker" aria-expanded="false"
+                        aria-controls="collapseDatePicker"
+                        (click)="planSwitch(toggle.id,false,selectedDate)">
+                  <span class="badge badge-danger">False</span>
+                </button>
+              </p>
+            </div>
+          </div>
+          <li [ngClass]="toggle.allowedNumberOfTimes === 0?'collapse show':'collapse'">This toggle is allowed to provide it's value as many times as it wants to.
+            <button class="btn btn-dark btn-sm" type="button" data-toggle="collapse"
+                    [attr.data-target]="'#collapseAllowedNumberOfTimes' + i" aria-expanded="false"
+                    aria-controls="collapseAllowedNumberOfTimes" (click)="toggle.allowedNumberOfTimes = 0">
+             Restrict this toggle
+            </button>
+          </li>
+          <li [ngClass]="toggle.allowedNumberOfTimes === 0?'collapse':'collapse show'">This toggle has an allowed number of times (<span class="badge badge-primary badge-pill">{{toggle.allowedNumberOfTimes}}</span> times
+            left) it can be requested before switching back to original/selected state.
+            <button class="btn btn-dark btn-sm" type="button" data-toggle="collapse"
+                    data-target="#collapseAllowedNumberOfTimes" aria-expanded="false"
+                    aria-controls="collapseAllowedNumberOfTimes" (click)="toggle.allowedNumberOfTimes = 0">
+              Enable this toggle
+            </button>
+          </li>
+          <div class="collapse" id="{{'collapseAllowedNumberOfTimes' + i}}">
+            <div class="card card-body">
+              Enter the number of times you'd like to override and have this toggle return 'true' [starts immediately when you click the button!]
+              <input #allowedNumberOfTimesInputField type="number" min="0" placeholder="Enter a number">
+              <button (click)="setRestriction(toggle.id, allowedNumberOfTimesInputField.value)">Set enabler</button>
+            </div>
+          </div>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

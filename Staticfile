@@ -1,0 +1,2 @@
+root: src
+location_include: includes/*.conf
